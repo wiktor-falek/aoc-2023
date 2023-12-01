@@ -44,6 +44,5 @@ console.log(
           }[entry] ?? entry)
       )
     )
-    .map((line) => [line[0], line[line.length - 1]])
     .reduce((acc, curr) => acc + +(curr[0] + curr[1]), 0)
 );
