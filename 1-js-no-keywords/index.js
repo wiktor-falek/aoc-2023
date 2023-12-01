@@ -1,4 +1,5 @@
 console.log(
+  "part 1:",
   require("fs")
     .readFileSync("input.txt")
     .toString()
@@ -10,15 +11,23 @@ console.log(
 );
 
 console.log(
+  "part 2:",
   require("fs")
     .readFileSync("input.txt")
     .toString()
     .split("\n")
     .slice(0, -1)
-    .map((line) =>
-      line.matchAll(/one|two|three|four|five|six|seven|eight|nine|[1-9]/g)
-    )
-    .map((matches) => [...matches].map((match) => match[0]))
+    .map((line) => [
+      line.match(/one|two|three|four|five|six|seven|eight|nine|[1-9]/)[0],
+      line
+        .split("")
+        .reverse()
+        .join("")
+        .match(/eno|owt|eerht|ruof|evif|xis|neves|thgie|enin|[1-9]/)[0]
+        .split("")
+        .reverse()
+        .join(""),
+    ])
     .map((line) =>
       line.map(
         (entry) =>
