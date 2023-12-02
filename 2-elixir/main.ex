@@ -70,4 +70,4 @@ sum_of_game_ids = Enum.sum(Enum.map(predicated_games, fn {_, index} -> index + 1
 sum_powers = Enum.sum(Enum.map(games_max_cubes, fn {r, g, b} -> r * g * b end))
 
 IO.puts("Part 1: #{sum_of_game_ids}")
-IO.puts("Part 2: #{powers}")
+IO.puts("Part 2: #{sum_powers}")
