@@ -1,27 +1,70 @@
-content = File.read!("example.txt")
-
-lines = String.split(content, "\n")
+content = File.read!("input.txt")
+lines = content |> String.split("\n", trim: true)
 
 defmodule Parsing do
+  @spec parse_line(line :: String.t()) :: String.t()
   def parse_line(line) do
-    splits = String.split(line, ": ")
-    lists = :lists.sublist(splits, 2, length(splits) - 1)
-    Enum.join(lists)
+    [_gameIdStr, rest] = String.split(line, ": ")
+    rest
   end
 
-  def parse_entries(entry) do
-    # parse amount of r g b
+  @spec parse_entries(line :: String.t()) :: list(String.t())
+  def parse_entries(line) do
+    games_data = String.split(line, "; ")
+    Enum.map(games_data, &String.split(&1, ", "))
   end
 
+  @spec parse_games(list(String.t())) :: {integer, integer, integer}
+  def parse_games(entries) do
+    Enum.map(entries, fn entry ->
+      Enum.reduce(entry, {0, 0, 0}, fn item, {max_r, max_g, max_b} ->
+        parse_cube(item, {max_r, max_g, max_b})
+      end)
+    end)
+  end
+
+  @spec parse_cube(item :: String.t(), {r, g, b} :: {integer, integer, integer}) :: {integer, integer, integer}
+  def parse_cube(item, {r, g, b}) do
+    [strAmount, color] = String.split(item, " ")
+    amount = String.to_integer(strAmount)
+
+    case color do
+      "red" -> {r + amount, g, b}
+      "green" -> {r, g  + amount, b}
+      "blue" -> {r, g, b + amount}
+      _ -> raise(ArgumentError, message: "Invalid color: #{color}")
+    end
+  end
+end
+
+defmodule Cubes do
+  @spec max_cubes(cubes :: list({r, g, b} :: {integer, integer, integer})) :: {integer, integer, integer}
+  def max_cubes(cubes) do
+    Enum.reduce(cubes, {0, 0, 0}, fn {r, g, b}, {acc_r, acc_g, acc_b} ->
+      {max(acc_r, r), max(acc_g, g), max(acc_b, b)}
+    end)
+  end
+
+  @spec is_cube_within_bounds({integer, integer, integer}) :: boolean
+  def is_cube_within_bounds({r, g, b}) do
+    r <= 12 and g <= 13 and b <= 14
+  end
 end
 
 
-entries = Enum.map(lines, &Parsing.parse_line/1) # -> 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green
+lines = (Enum.map(lines, &Parsing.parse_line/1))
 
-entries = Enum.map(lines, &Parsing.parse_line/1) # -> [(1, 4, 9)]
+entries = Enum.map(lines, &Parsing.parse_entries/1)
 
-# map entries to index + 1 where r > 12 || g > 13 || b > 14
+games = Enum.map(entries, &Parsing.parse_games/1)
 
-# sum indices
+games_max_cubes = Enum.map(games, &Cubes.max_cubes/1)
 
-Enum.each(sets, &IO.puts/1)
+predicated_games =
+  games_max_cubes
+  |> Enum.with_index()
+  |> Enum.filter(fn {{r, g, b}, index} -> Cubes.is_cube_within_bounds({r, g, b}) end)
+
+sum_of_game_ids = Enum.sum(Enum.map(predicated_games, fn {_, index} -> index + 1 end))
+
+IO.puts(sum_of_game_ids)
