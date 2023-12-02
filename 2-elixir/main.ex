@@ -66,6 +66,7 @@ predicated_games =
   |> Enum.filter(fn {{r, g, b}, index} -> Cubes.is_cube_within_bounds({r, g, b}) end)
 
 sum_of_game_ids = Enum.sum(Enum.map(predicated_games, fn {_, index} -> index + 1 end))
+
 sum_powers = Enum.sum(Enum.map(games_max_cubes, fn {r, g, b} -> r * g * b end))
 
 IO.puts("Part 1: #{sum_of_game_ids}")
