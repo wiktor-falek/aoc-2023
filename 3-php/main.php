@@ -83,6 +83,7 @@ function scan_left_and_right($startX, $y, $lines) {
 }
 
 $numbers = [];
+$gearRatios = [];
 for ($y = 0; $y < BOUND_Y; $y++) { 
   $line = $lines[$y];
   for ($x = 0; $x < BOUND_X; $x++) { 
@@ -99,6 +100,14 @@ for ($y = 0; $y < BOUND_Y; $y++) {
         return strLen($number);
       });
 
+      if ($char == "*" && count($results) == 2) {
+        $gearRatio = 1;
+        foreach ($results as $result) {
+          $gearRatio = $gearRatio * intval($result);
+        }
+        array_push($gearRatios, $gearRatio);
+      }
+
       $numbers = array_merge($numbers, $results);
     }
   }
@@ -108,5 +117,10 @@ $sum = array_reduce($numbers, function($acc, $number) {
   return $acc + intval($number);
 }, 0);
 
+$gearSum = array_reduce($gearRatios, function($acc, $number) {
+  return $acc + intval($number);
+}, 0);
+
 echo("Part 1: " . $sum . "\n");
+echo("Part 2: " . $gearSum . "\n");
 ?>
