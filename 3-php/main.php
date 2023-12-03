@@ -1,5 +1,5 @@
 <?php
-$content = file_get_contents( __DIR__ . '/example.txt' );
+$content = file_get_contents( __DIR__ . '/input.txt' );
 
 $lines = explode("\n", $content);
 array_pop($lines);
@@ -8,7 +8,7 @@ define("BOUND_X", count($lines));
 define("BOUND_Y", strlen($lines[0]));
 
 function get_pos($x, $y, $lines) {
-  if ($x < 0 || $y < 0 || $x >= BOUND_X || $y > BOUND_Y) {
+  if ($x < 0 || $y < 0 || $x >= BOUND_X || $y >= BOUND_Y) {
     return NULL;
   }
   return $lines[$y][$x];
@@ -36,7 +36,7 @@ function scan_right($startX, $line) {
   $x = $startX;
 
   $digits = [];
-  while ($x <= strlen($line)) {
+  while ($x < strlen($line)) {
     $char = $line[$x];
     
     if (!is_numeric($char)) {
@@ -54,20 +54,30 @@ function scan_left_and_right($startX, $y, $lines) {
   $line = $lines[$y];
   
   $mid = get_pos($startX, $y, $lines);
-
+  if (!is_numeric($mid)) {
+    $mid = "";
+  }
+  
   $left = scan_left($startX - 1, $line);
   $right = scan_right($startX + 1, $line);
-
-  $results = match (true) {
-    ($left && $mid && $right) => [$left . $mid . $right],
-    ($left && $right) => [$left, $right],
-    ($left && $mid) => [$left . $mid],
-    ($mid && $right) => [$mid . $right],
-    ($right) => [$right],
-    ($left) => [$left],
-    ($mid) => [$mid],
-    default => [],
-  };
+  
+  if ($left !== "" && $mid !== "" && $right !== "") {
+    $results = [$left . $mid . $right];
+  } elseif ($left !== "" && $mid !== "") {
+      $results = [$left . $mid];
+  } elseif ($mid !== "" && $right !== "") {
+      $results = [$mid . $right];
+  } elseif ($left !== "" && $right !== "") {
+      $results = [$left, $right];
+  } elseif ($left !== "") {
+      $results = [$left];
+  } elseif ($mid !== "") {
+      $results = [$mid];
+  } elseif ($right !== "") {
+      $results = [$right];
+  } else {
+      $results = [];
+  }
 
   return $results;
 }
@@ -78,17 +88,15 @@ for ($y = 0; $y < BOUND_Y; $y++) {
   for ($x = 0; $x < BOUND_X; $x++) { 
     $char = $lines[$y][$x];
     if ($char != "." && !is_numeric($char)) {
-
       $positions = [
         scan_left($x - 1, $line), // left
         scan_right($x + 1, $line), // right
-        scan_left_and_right($x, $y - 1, $lines), // top
-        scan_left_and_right($x, $y + 1, $lines), // bottom
+        ...scan_left_and_right($x, $y - 1, $lines), // top
+        ...scan_left_and_right($x, $y + 1, $lines), // bottom
       ];
 
-      // TODO: flatten
       $results = array_filter($positions, function ($number) {
-        return strLen($number) != 0;
+        return strLen($number);
       });
 
       $numbers = array_merge($numbers, $results);
@@ -96,8 +104,9 @@ for ($y = 0; $y < BOUND_Y; $y++) {
   }
 }
 
-foreach ($numbers as $number) {
-  echo($number . "\n");
-}
+$sum = array_reduce($numbers, function($acc, $number) {
+  return $acc + intval($number);
+}, 0);
 
+echo("Part 1: " . $sum . "\n");
 ?>
