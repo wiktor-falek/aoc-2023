@@ -1,0 +1,15 @@
+/home/apdo/code/aoc-2023/4-csharp/obj/Debug/net7.0/4-csharp.csproj.AssemblyReference.cache
+/home/apdo/code/aoc-2023/4-csharp/obj/Debug/net7.0/4-csharp.GeneratedMSBuildEditorConfig.editorconfig
+/home/apdo/code/aoc-2023/4-csharp/obj/Debug/net7.0/4-csharp.AssemblyInfoInputs.cache
+/home/apdo/code/aoc-2023/4-csharp/obj/Debug/net7.0/4-csharp.AssemblyInfo.cs
+/home/apdo/code/aoc-2023/4-csharp/obj/Debug/net7.0/4-csharp.csproj.CoreCompileInputs.cache
+/home/apdo/code/aoc-2023/4-csharp/bin/Debug/net7.0/4-csharp
+/home/apdo/code/aoc-2023/4-csharp/bin/Debug/net7.0/4-csharp.deps.json
+/home/apdo/code/aoc-2023/4-csharp/bin/Debug/net7.0/4-csharp.runtimeconfig.json
+/home/apdo/code/aoc-2023/4-csharp/bin/Debug/net7.0/4-csharp.dll
+/home/apdo/code/aoc-2023/4-csharp/bin/Debug/net7.0/4-csharp.pdb
+/home/apdo/code/aoc-2023/4-csharp/obj/Debug/net7.0/4-csharp.dll
+/home/apdo/code/aoc-2023/4-csharp/obj/Debug/net7.0/refint/4-csharp.dll
+/home/apdo/code/aoc-2023/4-csharp/obj/Debug/net7.0/4-csharp.pdb
+/home/apdo/code/aoc-2023/4-csharp/obj/Debug/net7.0/4-csharp.genruntimeconfig.cache
+/home/apdo/code/aoc-2023/4-csharp/obj/Debug/net7.0/ref/4-csharp.dll
