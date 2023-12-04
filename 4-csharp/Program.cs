@@ -5,7 +5,8 @@
         InputFileReader reader = new("input.txt");
         string[] lines = reader.Lines;
 
-        List<int> results = new();
+        List<int> allGamesPoints = new();
+        
         foreach (var line in lines)
         {
             Card card = Parser.GetCard(line);
@@ -13,12 +14,12 @@
             //     $"Card({card.Id}, [{string.Join(',', card.WinningNumbers)}], [{string.Join(',', card.Numbers)}])"
             // );
 
-            int guessedNumbersCount = card.WinningNumbers.Intersect(card.Numbers).Count();
-            int result = (int)Math.Pow(2, guessedNumbersCount - 1);
-            results.Add(result);
+            IEnumerable<int> matchingNumbers = card.WinningNumbers.Intersect(card.Numbers);
+            int points = (int)Math.Pow(2, matchingNumbers.Count() - 1);
+            allGamesPoints.Add(points);
         }
 
-        Console.WriteLine("Part 1: " + results.Sum());
+        Console.WriteLine("Part 1: " + allGamesPoints.Sum());
     }
 
     class InputFileReader
@@ -28,12 +29,15 @@
         public InputFileReader(string filePath)
         {
             StreamReader sr = new(filePath);
+            
             string? line = sr.ReadLine();
+
             while (line != null)
             {
                 lines.Add(line);
                 line = sr.ReadLine();
             }
+            
             sr.Close();
 
             Lines = lines.ToArray();
