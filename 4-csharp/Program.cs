@@ -4,22 +4,43 @@
     {
         InputFileReader reader = new("input.txt");
         string[] lines = reader.Lines;
+        Card[] cards = Array.ConvertAll(lines, line => Parser.GetCard(line));
 
-        List<int> allGamesPoints = new();
+        List<int> originalCardsPoints = new();
+        Dictionary<int, int> copiedCardsMap = new();
+        int copiedCards = 0;
         
-        foreach (var line in lines)
+        foreach (var card in cards)
         {
-            Card card = Parser.GetCard(line);
-            // Console.WriteLine(
-            //     $"Card({card.Id}, [{string.Join(',', card.WinningNumbers)}], [{string.Join(',', card.Numbers)}])"
-            // );
-
             IEnumerable<int> matchingNumbers = card.WinningNumbers.Intersect(card.Numbers);
             int points = (int)Math.Pow(2, matchingNumbers.Count() - 1);
-            allGamesPoints.Add(points);
+            originalCardsPoints.Add(points);
+
+            int copiesToGrant = 1 + copiedCardsMap.GetValueOrDefault(card.Id, 0);
+
+            (int, int) range = (
+                card.Id + 1,
+                Math.Min(card.Id + 1 + matchingNumbers.Count(), cards.Length)
+            );
+
+            for (int i = range.Item1; i < range.Item2; i++)
+            {
+                int currentCardId = i;
+                if (!copiedCardsMap.ContainsKey(currentCardId))
+                {
+                    copiedCardsMap.Add(currentCardId, copiesToGrant);
+                }
+                else
+                {
+                    copiedCardsMap[currentCardId] += copiesToGrant;
+                }
+
+                copiedCards += copiesToGrant;
+            }
         }
 
-        Console.WriteLine("Part 1: " + allGamesPoints.Sum());
+        Console.WriteLine($"Part 1: {originalCardsPoints.Sum()}");
+        Console.WriteLine($"Part 2: {originalCardsPoints.Count + copiedCards}");
     }
 
     class InputFileReader
@@ -29,7 +50,7 @@
         public InputFileReader(string filePath)
         {
             StreamReader sr = new(filePath);
-            
+
             string? line = sr.ReadLine();
 
             while (line != null)
@@ -37,7 +58,7 @@
                 lines.Add(line);
                 line = sr.ReadLine();
             }
-            
+
             sr.Close();
 
             Lines = lines.ToArray();
