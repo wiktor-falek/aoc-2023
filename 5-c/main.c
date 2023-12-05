@@ -2,18 +2,16 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <limits.h>
+#include <time.h>
 
-struct Maps {
-    int length;
-    int (*rows)[3];
+const int OUTER_ARRAYS = 7;
+const int INNER_ARRAYS_LIMIT = 30;
+
+struct InputData {
+    long long* seeds;
+    long long*** maps;
 };
-
-struct Maps createMaps(int rows) {
-    struct Maps maps;
-    maps.length = rows;
-    maps.rows = (int(*)[3])malloc(rows * sizeof(int[3]));
-    return maps;
-}
 
 char* read_file(char* file_name) {
     FILE* fptr = fopen(file_name, "r");
@@ -37,17 +35,14 @@ char* read_file(char* file_name) {
     return file_content;
 }
 
-void parse_input(char* input) {
+struct InputData parse_input(char* input) {
     char* output = (char*)malloc(strlen(input) + 1);
     strcpy(output, input);
 
-    const int OUTER_ARRAYS = 7;
-    const int INNER_ARRAYS_LIMIT = 30;
-
-    int*** array_3d = (int***)malloc(OUTER_ARRAYS * sizeof(int**));
+    long long*** array_3d = (long long***)malloc(OUTER_ARRAYS * sizeof(long long**));
 
     for (int i = 0; i < 7; i++) {
-        array_3d[i] = (int**)malloc(INNER_ARRAYS_LIMIT * sizeof(int*));
+        array_3d[i] = (long long**)malloc(INNER_ARRAYS_LIMIT * sizeof(long long*));
     }
 
     char* token = strtok(output, "\n");
@@ -58,13 +53,14 @@ void parse_input(char* input) {
     int inner_array_idx = 0;
     while (token != NULL) {
         if (isdigit(token[0])) {
-            int a, b, c;
-            sscanf(token, "%d %d %d", &a, &b, &c);            
+            long long a, b, c;
+            sscanf(token, "%lld %lld %lld", &a, &b, &c);         
 
-            array_3d[array_3d_idx][inner_array_idx] = (int*)malloc(3 * sizeof(int));
+            array_3d[array_3d_idx][inner_array_idx] = (long long*)malloc(3 * sizeof(long long));
             array_3d[array_3d_idx][inner_array_idx][0] = a;
             array_3d[array_3d_idx][inner_array_idx][1] = b;
             array_3d[array_3d_idx][inner_array_idx][2] = c;
+            array_3d[array_3d_idx][inner_array_idx + 1] = NULL;
 
             inner_array_idx++;
         } else {
@@ -75,28 +71,36 @@ void parse_input(char* input) {
 
         token = strtok(NULL, "\n");
     }
-    
-    for (int i = 0; i < 7; i++) {
-        printf("--------\n");
-        for (int j = 0; array_3d[i][j] != NULL; j++) {
-            int a = array_3d[i][j][0];
-            int b = array_3d[i][j][1];
-            int c = array_3d[i][j][2];
-            printf("[%d, %d, %d]\n", a, b, c);
-        }
-        printf("\n");
+
+    long long* seeds = (long long*)malloc(30 * sizeof(long long*));
+
+    char* seed_token = strtok(seeds_line + 7, " ");
+    int idx = 0;
+    while (seed_token != NULL) {
+        long long seed;
+        sscanf(seed_token, "%lld", &seed);
+        seeds[idx] = seed;
+        idx++;
+        seed_token = strtok(NULL, " ");
     }
+
+    struct InputData input_data = {
+        .seeds = seeds,
+        .maps = array_3d
+    };
+
+    return input_data;
 }
 
-int get_dest(int seed, struct Maps maps) {
-    for (int i = 0; i < maps.length; i++) {
-        int* map = maps.rows[i];
-        int des_range_start = map[0];
-        int src_range_start = map[1];
-        int range_len       = map[2];
+long long get_dest(long long seed, long long** map) {
+    for (int i = 0; i < map[i] != NULL; i++) {
+        long long des_range_start = map[i][0];
+        long long src_range_start = map[i][1];
+        long long range_len       = map[i][2];
 
-        if (seed >= src_range_start && seed < src_range_start + 2) {
-            return seed - des_range_start + range_len;
+        if (seed >= src_range_start && seed < src_range_start + range_len) {
+            long long result = seed - src_range_start + des_range_start;
+            return result;
         }
     }
 
@@ -104,33 +108,35 @@ int get_dest(int seed, struct Maps maps) {
 }
 
 int main() {
-    char* file_content = read_file("example.txt");
-    parse_input(file_content);
 
-    // Repeat for every seed
-    struct Maps soil_maps = createMaps(2);
-    soil_maps.rows[0][0] = 50;
-    soil_maps.rows[0][1] = 98;
-    soil_maps.rows[0][2] = 2;
+    char* file_content = read_file("input.txt");
+    struct InputData input_data = parse_input(file_content);
+    
+    clock_t start = clock();
+    
+    long long*** array_3d = input_data.maps; 
+    long long* seeds = input_data.seeds;
 
-    soil_maps.rows[1][0] = 52;
-    soil_maps.rows[1][1] = 50;
-    soil_maps.rows[1][2] = 48;
+    long long lowest = LONG_MAX;
 
-    // int soil = get_dest(98, soil_maps);
-    // printf("%d\n", soil);
+    for (int i = 0; seeds[i] != NULL; i++) {
+        long long seed = seeds[i];
 
-    // Repeat for other stages
-    // int fertilizer = get_dest(soil, (int[][3]){{1, 2, 3}, {4, 5, 6}, {7, 8, 9}});
-    // int water = get_dest(fertilizer, (int[][3]){{1, 2, 3}, {4, 5, 6}, {7, 8, 9}});
-    // int light = get_dest(water, (int[][3]){{1, 2, 3}, {4, 5, 6}, {7, 8, 9}});
-    // int temperature = get_dest(light, (int[][3]){{1, 2, 3}, {4, 5, 6}, {7, 8, 9}});
-    // int humidity = get_dest(temperature, (int[][3]){{1, 2, 3}, {4, 5, 6}, {7, 8, 9}});
-    // int location = get_dest(humidity, (int[][3]){{1, 2, 3}, {4, 5, 6}, {7, 8, 9}});
+        for (int j = 0; j < OUTER_ARRAYS; j++) {
+            seed = get_dest(seed, array_3d[j]);
+        }
 
-    // printf("%d\n", location);
+        if (seed < lowest) {
+            lowest = seed;
+        }
+    }
 
-    // Find lowest location 
+    printf("Part 1: %lld\n", lowest);
+
+    double elapsed_time = ((double)(clock() - start)) / CLOCKS_PER_SEC;
+
+    // Print the elapsed time
+    printf("Elapsed time: %f seconds\n", elapsed_time);
 
     return 0;
 }
