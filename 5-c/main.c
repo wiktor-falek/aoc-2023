@@ -93,7 +93,7 @@ struct InputData parse_input(char* input) {
 }
 
 long long get_dest(long long seed, long long** map) {
-    for (int i = 0; i < map[i] != NULL; i++) {
+    for (int i = 0; map[i] != NULL; i++) {
         long long des_range_start = map[i][0];
         long long src_range_start = map[i][1];
         long long range_len       = map[i][2];
@@ -108,35 +108,27 @@ long long get_dest(long long seed, long long** map) {
 }
 
 int main() {
-
     char* file_content = read_file("input.txt");
     struct InputData input_data = parse_input(file_content);
-    
-    clock_t start = clock();
     
     long long*** array_3d = input_data.maps; 
     long long* seeds = input_data.seeds;
 
-    long long lowest = LONG_MAX;
+    long long part_1_lowest = LONG_MAX;
 
-    for (int i = 0; seeds[i] != NULL; i++) {
+    for (int i = 0; seeds[i] != 0; i++) {
         long long seed = seeds[i];
 
         for (int j = 0; j < OUTER_ARRAYS; j++) {
             seed = get_dest(seed, array_3d[j]);
         }
 
-        if (seed < lowest) {
-            lowest = seed;
+        if (seed < part_1_lowest) {
+            part_1_lowest = seed;
         }
     }
 
-    printf("Part 1: %lld\n", lowest);
-
-    double elapsed_time = ((double)(clock() - start)) / CLOCKS_PER_SEC;
-
-    // Print the elapsed time
-    printf("Elapsed time: %f seconds\n", elapsed_time);
+    printf("Part 1: %lld\n", part_1_lowest);
 
     return 0;
 }
