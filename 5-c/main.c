@@ -41,7 +41,7 @@ struct InputData parse_input(char* input) {
 
     long long*** array_3d = (long long***)malloc(OUTER_ARRAYS * sizeof(long long**));
 
-    for (int i = 0; i < 7; i++) {
+    for (int i = 0; i < OUTER_ARRAYS; i++) {
         array_3d[i] = (long long**)malloc(INNER_ARRAYS_LIMIT * sizeof(long long*));
     }
 
