@@ -52,7 +52,7 @@ defmodule Cubes do
 end
 
 
-lines = (Enum.map(lines, &Parsing.parse_line/1))
+lines = Enum.map(lines, &Parsing.parse_line/1)
 
 entries = Enum.map(lines, &Parsing.parse_entries/1)
 
